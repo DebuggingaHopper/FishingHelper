@@ -92,3 +92,183 @@ def create():
 if __name__ == '__main__':
     create()
 ```
+
+# Opening / Finding Command Prompt
+
+Before we go deeper into the code and explain the different libraries and how to install them, we need to access our command prompt to install these libraries. Provided below are links regarding opening your command prompt/terminal on your device.
+
+[MAC](https://support.apple.com/guide/terminal/open-or-quit-terminal-apd5265185d-f365-44cb-8b09-71a064a42125/mac)
+
+[WINDOWS](https://www.ionos.com/digitalguide/server/tools/open-command-prompt/)
+
+[LINUX](https://ubuntu.com/tutorials/command-line-for-beginners#3-opening-a-terminal)
+
+
+
+## Installing geocoder
+
+When it comes to installing geocoder, all you need to do is run the pip command displayed below in your command prompt.
+
+```
+pip install geocoder
+```
+
+## Installing geopy
+
+When it comes to installing geopy, all you need to do is run the pip command displayed below in your command prompt.
+```
+pip install geopy
+```
+
+# Breaking down the Code
+What will be displayed below is the deconstruction of the code 
+
+
+## Breaking down the initilization of the User Class
+
+As shown before, the main aspect of this program is the User class. When the program is running, it will allow the user to create a user with their desire user name. This User will hold various pieces of information such as their latitude, longitude, state and address. The User class will also have the locations latitude and longitude initialized. As shown below, this initilization of the User class focuses on the core aspects of the class.
+```
+class User:
+    def __init__(self, name, user_lat, user_long, state, address = "", loc_lat=0, loc_lng=0):
+        self.name = name
+        self.user_lat = user_lat
+        self.user_long = user_long
+        self.state = state
+        self.address = address
+        self.loc_lat = loc_lat
+        self.loc_lng = loc_lng
+```
+
+## Breaking down the showaddress method
+Displayed below is the showaddress method which essentially displays the address of a fishing spot. 
+```
+#What this will display to the user is the address of fishing spots given to them
+    #It shows to the user the latitude and longitude, for now it will display that but later it will just store it
+    #If the address is NA, then it will say the address is unavaliable at this time. This will never fail since any address in the array that is unknown will have NA
+    def showaddress(self):
+        app = Nominatim(user_agent="tutorial")
+        location = app.geocode("{}".format(self.address))
+        print(location.address)
+        self.loc_lat = location.latitude
+        self.loc_lng = location.longitude
+        pprint((location.latitude, location.longitude))
+```
+
+This code segment is defining app as what will acquire the longitude and latitude of a location. we then store this into the location vairable that will essentially hold all the information acquired by app.
+```
+app = Nominatim(user_agent="tutorial")
+location = app.geocode("{}".format(self.address))
+```
+
+Then we are setting the locations latitude and longitude into the location variable, and printing out the latitude and longitude
+```
+self.loc_lat = location.latitude
+self.loc_lng = location.longitude
+pprint((location.latitude, location.longitude))
+```
+
+
+## Breaking down check_state method
+Now we will break down the check_state method shown below
+
+```
+    #What this does is check the users state which is stores in the user class
+    #It will then display the possible fishing spots in their state
+    #It iterates through the array which will show all possible fishing spots, and their addresses
+    def check_state(self):
+        if (self.state == "Maryland"):
+            print("Welcome {} to the the {} fishing spots menu: \n \n".format(self.name, self.state))
+            for i in range(len(MDspots)):
+                print('{} : '.format(MDspots[i]))
+                if (MDadrs[i] == "NA"):
+                    self.address = "{} {}".format(MDspots[i], self.state)
+                    print('{} : {} km \n'.format(self.showaddress(), self.distance()))
+                    for i in range(2):
+                        print('\n')
+                else:
+                    self.address = MDadrs[i]
+                    print('{} : {} km \n'.format(self.showaddress(), self.distance()))
+                    for i in range(2):
+                        print('\n')
+```
+
+
+Within this method, we first check the state, if the users class state is maryland, then it will first print out a welcoming message with the users name and state. Then it will run a for loop that will print out most of the fishing spots within Maryland but it will chck it's adress from a lsit and if the address is NA it will make the address equal to the spot name and it's state. Then it will print out the output from the showaddressmethod and the distance from the location and you.
+
+
+Else if the address is not equal to NA, then address equals to the actual address within the list. Then it will print out the address of the location and it's distnace just like before.
+
+showadress will show the locations actual address line while distnace displays its distance from the users location.
+```
+        if (self.state == "Maryland"):
+            print("Welcome {} to the the {} fishing spots menu: \n \n".format(self.name, self.state))
+            for i in range(len(MDspots)):
+                print('{} : '.format(MDspots[i]))
+                if (MDadrs[i] == "NA"):
+                    self.address = "{} {}".format(MDspots[i], self.state)
+                    print('{} : {} km \n'.format(self.showaddress(), self.distance()))
+                    for i in range(2):
+                        print('\n')
+                else:
+                    self.address = MDadrs[i]
+                    print('{} : {} km \n'.format(self.showaddress(), self.distance()))
+                    for i in range(2):
+                        print('\n')
+```
+
+
+## Breaking down the distance method
+Simply enough we acquire the longitude, and latitude from the user and its location and utilize a formula as diplayed before to acuire the distance in km the location is from you.
+```
+ #This will calculate the distance between your current location, and the address of the fishing spot
+    def distance(self):
+        lon1 = radians(self.user_long)
+        lon2 = radians(self.loc_lng)
+        lat1 = radians(self.user_lat)
+        lat2 = radians(self.loc_lat)
+        dlon = lon2-lon1
+        dlat = lat2 - lat1
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2)*sin(dlon/2)**2
+        c = 2 * asin(sqrt(a))
+        r = 6371
+        return(c *r)
+```
+
+## Breaking down the lists
+What is shown below are the spot lists and address lists which hold the respective spots address and name.
+
+These lists are utilized in the check_state method
+```
+MDspots  = ["Lake Habeeb at Rocky Gap State Park" , "Town Creek Delayed Harvest" , "Liberty Reservoir", "Piney Run Reservoir", "Patapsco River", "Big Hunting Creek", "Cunningham Falls Reservoir", "Owens Creek", "Potomac River", "Broadford Lake", "Deep Creek Lake", "Savage River Tailwater Trophy Trout Fishing Area", "Casselman River", "Piney Reservoir", "North Branch Potomac River", "Blairs Valley Lake", "Gunpowder Falls", "Loch Raven Reservoir", "Prettyboy Reservoir", "Deer Creek", "Centennial Lake", "Clopper Lake", "Little Seneca Lake", "Mattawoman Creek", "Wheatley Lake", "Piscataway Creek", "Lake Artemesia", "St. Mary's Lake", "Smithville Lake", "Rising Sun Pond", "Transquaking River", "Urieville Lake", "Tuckahoe Lake", "Unicorn Lake", "Wye Mills Lake", "Adkins Mill Pond", "Johnson's Pond", "Leonard's Mill Pond"]
+
+
+MDadrs =["12900 Lake Shore Dr Maryland", "28700 Headquarters Dr Maryland","5685 Oakland Rd Maryland", "30 Martz Rd Maryland", "8020 Baltimore National Pike Maryland","6916 Blacks Mill Rd Maryland","14039 Catoctin Hollow Rd Maryland", "NA", "NA","NA", "898 State Park Rd Maryland","1600 Mt Aetna Rd Maryland", "NA", "30 Martz Rd Maryland", "NA", "14022 Blairs Valley Rd Maryland","7200 Graces Quarters Rd","99 Loch Raven Dr Maryland", "NA","Walters Mill Rd Maryland", "4651 Centennial Ln Maryland", "11950 Clopper Rd Maryland", "20508 Clarksburg Rd Maryland", "NA", "La Plata Maryland","NA","8200 55th Ave Maryland", "21250 Camp Cosoma Rd Maryland", "NA","NA","NA", "NA", "NA", "110 Fishing Lake Ln Maryland", "Wye Mills Community Lake", "5168 Powellville Road Maryland", "NA", "2848 Leonards Mill Pond Dr Maryland"]
+
+```
+
+## Breaking down the create method
+
+
+as shown below, this method simply takes the user inout, then it utilizes geocoder to acquire your ip address which has your latitude, longitude and state and then creates the user object. Then it runs the check_state method to fully begin the process on acquiring the fishing spots.
+```
+#The create function begins the whole program
+def create():
+    # This will be where the user will input their name, the plan is to make this an app that allows many to know all possible fishing spots and tips
+    user_Name = str(input("What is your name?: "))
+    # This will create a variable that will access to the users information through the ip address of their address
+    # This is done to ensure that the information acquired ranging from lat, lng, and state are all from the ip address.
+    g = geocoder.ip('me')
+    # Here we create the user object with the information we acquired
+    user = User(user_Name, g.lat, g.lng, g.state)
+    # Then we run the first method to provide the possible fishing spots
+    user.check_state()
+   
+```
+
+
+## Main function
+Finally whe the program begisn to run, it runs the main function which is to run the create function as soon as the program starts running.
+```
+if __name__ == '__main__':
+    create()
+```
